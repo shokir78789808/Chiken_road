@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Chicken Road Friends</title>
+  <title>Chicken Road 2D Action</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: #090d16;
-      --card: #131b2e;
+      --bg: #0b0f19;
+      --card: #151d30;
       --accent: #f59e0b;
       --green: #10b981;
       --red: #ef4444;
@@ -28,14 +28,16 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
       overflow-x: hidden;
     }
 
     header {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: var(--card);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       position: sticky;
@@ -59,7 +61,7 @@
       background: linear-gradient(135deg, #10b981, #059669);
       color: white;
       border: none;
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-weight: 700;
       font-size: 12px;
@@ -70,29 +72,23 @@
       align-items: center;
       gap: 4px;
       background: #1e293b;
-      padding: 6px 8px;
-      border-radius: 8px;
+      padding: 5px 8px;
+      border-radius: 6px;
       font-size: 12px;
       font-weight: bold;
       border: 1px solid #334155;
     }
-    .burger-btn {
-      background: none;
-      border: none;
-      color: #cbd5e1;
-      font-size: 22px;
-      cursor: pointer;
-    }
 
     .balance-bar {
+      width: 100%;
+      max-width: 420px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 16px;
-      background: #0f172a;
+      padding: 8px 16px;
       font-size: 13px;
       font-weight: 600;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #94a3b8;
     }
     .balance-val {
       color: #38bdf8;
@@ -100,88 +96,32 @@
       font-weight: 900;
     }
 
-    .game-arena {
-      flex: 1;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      max-width: 440px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .road {
-      background: #0f172a;
-      border: 2px solid #1e293b;
-      border-radius: 18px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column-reverse;
-      gap: 8px;
-      box-shadow: inset 0 0 25px rgba(0,0,0,0.8);
-    }
-    .lane {
-      height: 54px;
-      background: #1e293b;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      font-weight: 800;
+    /* Холст с игрой */
+    .canvas-container {
       position: relative;
-      border: 1px solid #334155;
-      transition: all 0.25s ease;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
     }
-    .lane::before {
-      content: "";
-      position: absolute;
-      left: 0; right: 0; top: 50%;
-      height: 2px;
-      background: repeating-linear-gradient(90deg, #475569 0, #475569 12px, transparent 12px, transparent 20px);
-      transform: translateY(-50%);
-      opacity: 0.3;
-    }
-    .lane-num { font-size: 13px; color: #94a3b8; z-index: 1; }
-    .lane-mult { font-size: 15px; color: var(--accent); z-index: 1; }
-    .lane-actor {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      display: none;
-      z-index: 2;
+    canvas {
+      background: #1e293b;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      width: 100%;
+      max-width: 400px;
+      display: block;
     }
 
-    .lane.passed {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: var(--green);
-    }
-    .lane.passed .lane-mult { color: #34d399; }
-    .lane.current {
-      border-color: var(--accent);
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
-    }
-    .lane.current .lane-actor { display: block; animation: hop 0.4s infinite alternate; }
-    .lane.crashed {
-      background: rgba(239, 68, 68, 0.3);
-      border-color: var(--red);
-    }
-    .lane.crashed .lane-actor { display: block; }
-
-    @keyframes hop {
-      from { transform: translateX(-50%) translateY(0); }
-      to { transform: translateX(-50%) translateY(-8px); }
-    }
-
+    /* Блок управления */
     .controls {
-      margin-top: 14px;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 14px;
+      width: 100%;
+      max-width: 420px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      border: 1px solid rgba(255,255,255,0.06);
+      gap: 10px;
     }
     .bet-selector {
       display: flex;
@@ -192,7 +132,7 @@
       background: #1e293b;
       color: #cbd5e1;
       border: 1px solid #334155;
-      padding: 9px 0;
+      padding: 8px 0;
       border-radius: 8px;
       font-weight: 700;
       font-size: 13px;
@@ -206,32 +146,35 @@
 
     .action-group {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
-    .btn-main {
+    .btn-step {
       flex: 2;
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #0b0f19;
       border: none;
-      padding: 16px;
+      padding: 14px;
       border-radius: 12px;
       font-size: 16px;
       font-weight: 900;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
     }
     .btn-cashout {
       flex: 1.5;
       background: linear-gradient(135deg, #10b981, #059669);
       color: white;
       border: none;
-      padding: 16px;
+      padding: 14px;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
-      display: none;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+      display: none;
     }
 
+    /* Модалки */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -246,15 +189,11 @@
     .modal {
       background: #1e293b;
       border: 1px solid #334155;
-      border-radius: 18px;
-      padding: 22px;
+      border-radius: 16px;
+      padding: 20px;
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       text-align: center;
-    }
-    .modal h3 {
-      font-size: 19px;
-      margin-bottom: 10px;
     }
     .modal-btn {
       width: 100%;
@@ -265,7 +204,6 @@
       border-radius: 10px;
       font-weight: 800;
       margin-top: 14px;
-      font-size: 14px;
       cursor: pointer;
     }
     .modal-close {
@@ -279,27 +217,6 @@
       margin-top: 8px;
       cursor: pointer;
     }
-
-    .sidebar {
-      position: fixed;
-      top: 0; right: -280px;
-      width: 260px; height: 100%;
-      background: #111827;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 110;
-      padding: 24px 20px;
-      box-shadow: -6px 0 20px rgba(0,0,0,0.6);
-    }
-    .sidebar.open { right: 0; }
-    .nav-item {
-      padding: 12px 14px;
-      background: #1e293b;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -309,83 +226,46 @@
       <span>🐔</span> Chicken Road
     </div>
     <div class="top-actions">
-      <button class="btn-deposit" onclick="openModal('bonusModal')">+ Бонус</button>
+      <button class="btn-deposit" onclick="openBonus()">+ Бонус</button>
       <div class="flag-badge">
         <span>🇹🇯</span>
         <span>TJ</span>
       </div>
-      <button class="burger-btn" onclick="toggleSidebar()">☰</button>
     </div>
   </header>
 
   <div class="balance-bar">
-    <span>Игровые фишки:</span>
+    <span>Фишки для игры:</span>
     <span class="balance-val" id="userBalance">100.00 TJS</span>
   </div>
 
-  <div class="game-arena">
-    <div class="road">
-      <div class="lane" id="lane-5">
-        <span class="lane-num">Финиш 🏁</span>
-        <span class="lane-actor">🐔</span>
-        <span class="lane-mult">x4.50</span>
-      </div>
-      <div class="lane" id="lane-4">
-        <span class="lane-num">Полоса 4</span>
-        <span class="lane-actor">🐔</span>
-        <span class="lane-mult">x2.80</span>
-      </div>
-      <div class="lane" id="lane-3">
-        <span class="lane-num">Полоса 3</span>
-        <span class="lane-actor">🐔</span>
-        <span class="lane-mult">x1.90</span>
-      </div>
-      <div class="lane" id="lane-2">
-        <span class="lane-num">Полоса 2</span>
-        <span class="lane-actor">🐔</span>
-        <span class="lane-mult">x1.45</span>
-      </div>
-      <div class="lane" id="lane-1">
-        <span class="lane-num">Полоса 1</span>
-        <span class="lane-actor">🐔</span>
-        <span class="lane-mult">x1.20</span>
-      </div>
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="360" height="420"></canvas>
+  </div>
+
+  <div class="controls">
+    <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">СТАВКА ФИШЕК:</div>
+    <div class="bet-selector">
+      <button class="bet-btn active" onclick="setBet(5, this)">5</button>
+      <button class="bet-btn" onclick="setBet(10, this)">10</button>
+      <button class="bet-btn" onclick="setBet(25, this)">25</button>
+      <button class="bet-btn" onclick="setBet(50, this)">50</button>
     </div>
 
-    <div class="controls">
-      <div style="font-size: 12px; color: #94a3b8; font-weight: 700;">ВЫБЕРИ СТАВКУ ФИШЕК:</div>
-      <div class="bet-selector">
-        <button class="bet-btn active" onclick="setBet(5, this)">5</button>
-        <button class="bet-btn" onclick="setBet(10, this)">10</button>
-        <button class="bet-btn" onclick="setBet(25, this)">25</button>
-        <button class="bet-btn" onclick="setBet(50, this)">50</button>
-      </div>
-
-      <div class="action-group">
-        <button class="btn-main" id="mainBtn" onclick="handleGameAction()">СТАРТ (5 TJS) 🚀</button>
-        <button class="btn-cashout" id="cashoutBtn" onclick="cashOut()">ЗАБРАТЬ 💰</button>
-      </div>
+    <div class="action-group">
+      <button class="btn-step" id="stepBtn" onclick="gameAction()">СТАРТ (5 TJS) 🚀</button>
+      <button class="btn-cashout" id="cashoutBtn" onclick="cashOut()">ЗАБРАТЬ 💰</button>
     </div>
   </div>
 
-  <!-- Модалка с бесплатными фишками для друзей -->
   <div class="modal-backdrop" id="bonusModal">
     <div class="modal">
       <h3>🎁 Бонусные фишки</h3>
-      <p style="font-size: 14px; color: #94a3b8; margin: 10px 0;">Закончились фишки для игры с друзьями? Нажми кнопку, чтобы пополнить баланс на +100 фишек!</p>
-      <button class="modal-btn" onclick="claimFreeBonus()">Забрать +100 TJS 🪙</button>
-      <button class="modal-close" onclick="closeModal('bonusModal')">Закрыть</button>
+      <p style="font-size: 13px; color: #94a3b8; margin: 10px 0;">Закончились фишки? Нажми кнопку, чтобы пополнить счет на +100 фишек для игры с друзьями!</p>
+      <button class="modal-btn" onclick="claimBonus()">Получить +100 TJS 🪙</button>
+      <button class="modal-close" onclick="closeBonus()">Закрыть</button>
     </div>
   </div>
-
-  <!-- Меню -->
-  <div class="modal-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
-  <aside class="sidebar" id="sidebar">
-    <h3 style="margin-bottom: 20px; font-size: 18px;">👑 Chicken Party</h3>
-    <div class="nav-item">🎮 Режим: Игра с друзьями</div>
-    <div class="nav-item" onclick="resetScore()">🔄 Сбросить баланс до 100</div>
-    <div class="nav-item" onclick="toggleSidebar()">✖ Закрыть меню</div>
-  </aside>
 
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
@@ -393,140 +273,260 @@
       window.Telegram.WebApp.expand();
     }
 
-    // Звуки через встроенный синтезатор звука браузера
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    function playBeep(freq, type, duration) {
+    // Звуки
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, dur) {
       try {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(audioCtx.destination);
         osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-        osc.stop(ctx.currentTime + duration);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+        osc.stop(audioCtx.currentTime + dur);
       } catch(e){}
     }
 
-    // Сохранение баланса между сессиями
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
     let balance = parseFloat(localStorage.getItem('chicken_balance')) || 100.0;
     let bet = 5.0;
-    let currentLane = 0;
-    let gameActive = false;
-    const multipliers = [1.20, 1.45, 1.90, 2.80, 4.50];
+    let gameState = 'IDLE'; // IDLE, PLAYING, CRASHED, WON
+    let currentLane = 0; // 0: Старт, 1..5: Полосы дороги, 6: Финиш
+    const laneMultipliers = [1.0, 1.25, 1.65, 2.30, 3.40, 5.00];
 
-    updateBalance();
+    // Размеры поля (6 полос + старт + финиш)
+    const totalLanes = 6;
+    const laneHeight = canvas.height / (totalLanes + 1); // ~60px
+    
+    // Курица
+    const chicken = {
+      x: canvas.width / 2,
+      y: canvas.height - laneHeight / 2,
+      targetY: canvas.height - laneHeight / 2,
+      radius: 14,
+      frame: 0
+    };
+
+    // Машины на полосах
+    const cars = [];
+    const carColors = ['#ef4444', '#3b82f6', '#eab308', '#a855f7', '#ec4899'];
+    for (let i = 1; i <= 5; i++) {
+      const speed = (i % 2 === 0 ? 1 : -1) * (1.2 + i * 0.4);
+      cars.push({
+        lane: i,
+        x: Math.random() * canvas.width,
+        y: canvas.height - (i + 0.5) * laneHeight,
+        w: 48,
+        h: 24,
+        speed: speed,
+        color: carColors[i - 1]
+      });
+      // Вторая машина на той же полосе для плотности
+      cars.push({
+        lane: i,
+        x: (Math.random() * canvas.width + 180) % canvas.width,
+        y: canvas.height - (i + 0.5) * laneHeight,
+        w: 46,
+        h: 24,
+        speed: speed,
+        color: carColors[(i + 2) % carColors.length]
+      });
+    }
 
     function setBet(amount, btn) {
-      if (gameActive) return;
+      if (gameState === 'PLAYING') return;
       bet = amount;
       document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('mainBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
-      playBeep(400, 'sine', 0.1);
+      document.getElementById('stepBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
+      playTone(440, 'sine', 0.1);
     }
 
-    function handleGameAction() {
-      if (!gameActive) {
-        if (balance < bet) {
-          openModal('bonusModal');
-          return;
-        }
-        balance -= bet;
-        updateBalance();
-        resetBoard();
-        gameActive = true;
-        currentLane = 1;
-        stepForward();
-      } else {
-        currentLane++;
-        stepForward();
-      }
-    }
-
-    function stepForward() {
-      // 22% шанс неудачи на полосе
-      const isCrash = currentLane > 1 && Math.random() < 0.22;
-      const laneEl = document.getElementById(`lane-${currentLane}`);
-
-      if (isCrash) {
-        laneEl.classList.add('crashed');
-        laneEl.querySelector('.lane-actor').innerText = '💥';
-        document.getElementById('mainBtn').innerText = 'РАЗДАВИЛИ! ЗАНОВО 🔄';
-        document.getElementById('cashoutBtn').style.display = 'none';
-        gameActive = false;
-        playBeep(120, 'sawtooth', 0.4); // звук удара
-      } else {
-        document.querySelectorAll('.lane').forEach(l => l.classList.remove('current'));
-        laneEl.classList.add('passed', 'current');
-        
-        const currentWin = (bet * multipliers[currentLane - 1]).toFixed(2);
-        const cashoutBtn = document.getElementById('cashoutBtn');
-        cashoutBtn.style.display = 'block';
-        cashoutBtn.innerText = `ЗАБРАТЬ (${currentWin}) 💰`;
-
-        playBeep(300 + currentLane * 100, 'triangle', 0.15); // звук успешного шага
-
-        if (currentLane === 5) {
-          document.getElementById('mainBtn').innerText = 'ФИНИШ! ЗАБЕРИ ВЫИГРЫШ 🏆';
-          gameActive = false;
-        } else {
-          document.getElementById('mainBtn').innerText = 'СЛЕДУЮЩАЯ ПОЛОСА ➡️';
-        }
-      }
-    }
-
-    function cashOut() {
-      if (currentLane === 0) return;
-      const win = bet * multipliers[currentLane - 1];
-      balance += win;
-      updateBalance();
-      playBeep(700, 'sine', 0.3); // победный звук
-      alert(`🎉 Красавчик! Ты забрал ${win.toFixed(2)} фишек!`);
-      resetBoard();
-    }
-
-    function resetBoard() {
-      gameActive = false;
-      currentLane = 0;
-      document.getElementById('cashoutBtn').style.display = 'none';
-      document.getElementById('mainBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
-      for (let i = 1; i <= 5; i++) {
-        const lane = document.getElementById(`lane-${i}`);
-        lane.className = 'lane';
-        lane.querySelector('.lane-actor').innerText = '🐔';
-      }
-    }
-
-    function updateBalance() {
+    function updateBalanceDisplay() {
       localStorage.setItem('chicken_balance', balance);
       document.getElementById('userBalance').innerText = `${balance.toFixed(2)} TJS`;
     }
+    updateBalanceDisplay();
 
-    function claimFreeBonus() {
+    function gameAction() {
+      if (gameState === 'IDLE' || gameState === 'CRASHED' || gameState === 'WON') {
+        if (balance < bet) {
+          openBonus();
+          return;
+        }
+        balance -= bet;
+        updateBalanceDisplay();
+        currentLane = 1;
+        gameState = 'PLAYING';
+        chicken.targetY = canvas.height - (currentLane + 0.5) * laneHeight;
+        document.getElementById('stepBtn').innerText = 'ШАГ ВПЕРЁД 🐔';
+        document.getElementById('cashoutBtn').style.display = 'block';
+        updateCashoutBtn();
+        playTone(350, 'triangle', 0.15);
+      } else if (gameState === 'PLAYING') {
+        if (currentLane < 5) {
+          currentLane++;
+          chicken.targetY = canvas.height - (currentLane + 0.5) * laneHeight;
+          updateCashoutBtn();
+          playTone(350 + currentLane * 60, 'triangle', 0.15);
+          if (currentLane === 5) {
+            document.getElementById('stepBtn').innerText = 'НА ФИНИШ 🏁';
+          }
+        } else if (currentLane === 5) {
+          currentLane = 6; // Финиш
+          chicken.targetY = laneHeight / 2;
+          gameState = 'WON';
+          const win = bet * laneMultipliers[5];
+          balance += win;
+          updateBalanceDisplay();
+          playTone(800, 'sine', 0.4);
+          document.getElementById('stepBtn').innerText = 'ПОБЕДА! ЕЩЁ РАЗ 🏆';
+          document.getElementById('cashoutBtn').style.display = 'none';
+        }
+      }
+    }
+
+    function updateCashoutBtn() {
+      const currentWin = (bet * laneMultipliers[currentLane]).toFixed(2);
+      document.getElementById('cashoutBtn').innerText = `ЗАБРАТЬ (${currentWin}) 💰`;
+    }
+
+    function cashOut() {
+      if (gameState !== 'PLAYING') return;
+      const win = bet * laneMultipliers[currentLane];
+      balance += win;
+      updateBalanceDisplay();
+      playTone(700, 'sine', 0.3);
+      alert(`🎉 Вы забрали ${win.toFixed(2)} TJS!`);
+      resetToIdle();
+    }
+
+    function resetToIdle() {
+      gameState = 'IDLE';
+      currentLane = 0;
+      chicken.targetY = canvas.height - laneHeight / 2;
+      chicken.y = chicken.targetY;
+      document.getElementById('cashoutBtn').style.display = 'none';
+      document.getElementById('stepBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
+    }
+
+    // Игровой цикл Canvas
+    function update() {
+      // Плавное движение курицы
+      chicken.y += (chicken.targetY - chicken.y) * 0.25;
+
+      // Движение машин
+      cars.forEach(car => {
+        car.x += car.speed;
+        if (car.speed > 0 && car.x > canvas.width + 40) car.x = -50;
+        if (car.speed < 0 && car.x < -60) car.x = canvas.width + 50;
+
+        // Проверка столкновения
+        if (gameState === 'PLAYING') {
+          const chickenLaneY = canvas.height - (car.lane + 0.5) * laneHeight;
+          if (Math.abs(chicken.y - chickenLaneY) < 16) {
+            if (chicken.x > car.x - 14 && chicken.x < car.x + car.w + 14) {
+              // Авария
+              gameState = 'CRASHED';
+              playTone(130, 'sawtooth', 0.4);
+              document.getElementById('stepBtn').innerText = 'РАЗДАВИЛИ! ЗАНОВО 🔄';
+              document.getElementById('cashoutBtn').style.display = 'none';
+            }
+          }
+        }
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Обочина Старта
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(0, canvas.height - laneHeight, canvas.width, laneHeight);
+      ctx.fillStyle = '#86efac';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('СТАРТОВАЯ ЗОНА', 16, canvas.height - laneHeight / 2 + 4);
+
+      // 2. Дороги
+      for (let i = 1; i <= 5; i++) {
+        const y = canvas.height - (i + 1) * laneHeight;
+        ctx.fillStyle = (i % 2 === 0) ? '#1e293b' : '#0f172a';
+        ctx.fillRect(0, y, canvas.width, laneHeight);
+
+        // Разделительная пунктирная полоса
+        ctx.strokeStyle = '#475569';
+        ctx.setLineDash([12, 12]);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Множитель на полосе
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.45)';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText(`x${laneMultipliers[i].toFixed(2)}`, canvas.width - 50, y + laneHeight / 2 + 5);
+      }
+
+      // 3. Финиш
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(0, 0, canvas.width, laneHeight);
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('🏁 ФИНИШ x5.00', 16, laneHeight / 2 + 5);
+
+      // 4. Отрисовка Машин
+      cars.forEach(car => {
+        ctx.fillStyle = car.color;
+        ctx.beginPath();
+        ctx.roundRect(car.x, car.y - car.h / 2, car.w, car.h, 6);
+        ctx.fill();
+
+        // Лобовое стекло
+        ctx.fillStyle = '#0f172a';
+        const glassX = car.speed > 0 ? car.x + car.w - 14 : car.x + 4;
+        ctx.fillRect(glassX, car.y - car.h / 2 + 3, 10, car.h - 6);
+
+        // Фары
+        ctx.fillStyle = '#fef08a';
+        if (car.speed > 0) {
+          ctx.fillRect(car.x + car.w - 2, car.y - 8, 2, 4);
+          ctx.fillRect(car.x + car.w - 2, car.y + 4, 2, 4);
+        } else {
+          ctx.fillRect(car.x, car.y - 8, 2, 4);
+          ctx.fillRect(car.x, car.y + 4, 2, 4);
+        }
+      });
+
+      // 5. Отрисовка Курицы
+      if (gameState === 'CRASHED') {
+        ctx.font = '32px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('💥', chicken.x, chicken.y + 10);
+      } else {
+        ctx.font = '28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🐔', chicken.x, chicken.y + 9);
+      }
+      ctx.textAlign = 'left';
+
+      update();
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    function openBonus() { document.getElementById('bonusModal').style.display = 'flex'; }
+    function closeBonus() { document.getElementById('bonusModal').style.display = 'none'; }
+    function claimBonus() {
       balance += 100.0;
-      updateBalance();
-      playBeep(600, 'sine', 0.2);
-      closeModal('bonusModal');
-      alert('Вам начислено +100 фишек! Приятной игры!');
-    }
-
-    function resetScore() {
-      balance = 100.0;
-      updateBalance();
-      toggleSidebar();
-      alert('Баланс сброшен на стартовые 100 фишек!');
-    }
-
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function toggleSidebar() {
-      const sb = document.getElementById('sidebar');
-      const bd = document.getElementById('sidebarBackdrop');
-      sb.classList.toggle('open');
-      bd.style.display = sb.classList.contains('open') ? 'block' : 'none';
+      updateBalanceDisplay();
+      playTone(600, 'sine', 0.2);
+      closeBonus();
+      alert('Вам начислено +100 фишек! Удачи на дорогах!');
     }
   </script>
 </body>
