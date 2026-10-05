@@ -1,1 +1,533 @@
-# Chiken_road
+# Chiken_road <!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chicken Road Friends</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #f8fafc;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--card);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-deposit {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .flag-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #1e293b;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid #334155;
+    }
+    .burger-btn {
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .balance-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: #0f172a;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .balance-val {
+      color: #38bdf8;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .game-arena {
+      flex: 1;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      max-width: 440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .road {
+      background: #0f172a;
+      border: 2px solid #1e293b;
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.8);
+    }
+    .lane {
+      height: 54px;
+      background: #1e293b;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-weight: 800;
+      position: relative;
+      border: 1px solid #334155;
+      transition: all 0.25s ease;
+    }
+    .lane::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #475569 0, #475569 12px, transparent 12px, transparent 20px);
+      transform: translateY(-50%);
+      opacity: 0.3;
+    }
+    .lane-num { font-size: 13px; color: #94a3b8; z-index: 1; }
+    .lane-mult { font-size: 15px; color: var(--accent); z-index: 1; }
+    .lane-actor {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      display: none;
+      z-index: 2;
+    }
+
+    .lane.passed {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--green);
+    }
+    .lane.passed .lane-mult { color: #34d399; }
+    .lane.current {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    }
+    .lane.current .lane-actor { display: block; animation: hop 0.4s infinite alternate; }
+    .lane.crashed {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: var(--red);
+    }
+    .lane.crashed .lane-actor { display: block; }
+
+    @keyframes hop {
+      from { transform: translateX(-50%) translateY(0); }
+      to { transform: translateX(-50%) translateY(-8px); }
+    }
+
+    .controls {
+      margin-top: 14px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .bet-selector {
+      display: flex;
+      gap: 8px;
+    }
+    .bet-btn {
+      flex: 1;
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 9px 0;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .bet-btn.active {
+      background: var(--accent);
+      color: #0b0f19;
+      border-color: var(--accent);
+    }
+
+    .action-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-main {
+      flex: 2;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #0b0f19;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .btn-cashout {
+      flex: 1.5;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 900;
+      display: none;
+      cursor: pointer;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 22px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .modal h3 {
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+    .modal-btn {
+      width: 100%;
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      margin-top: 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .modal-close {
+      width: 100%;
+      background: #334155;
+      color: #94a3b8;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0; right: -280px;
+      width: 260px; height: 100%;
+      background: #111827;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 110;
+      padding: 24px 20px;
+      box-shadow: -6px 0 20px rgba(0,0,0,0.6);
+    }
+    .sidebar.open { right: 0; }
+    .nav-item {
+      padding: 12px 14px;
+      background: #1e293b;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>🐔</span> Chicken Road
+    </div>
+    <div class="top-actions">
+      <button class="btn-deposit" onclick="openModal('bonusModal')">+ Бонус</button>
+      <div class="flag-badge">
+        <span>🇹🇯</span>
+        <span>TJ</span>
+      </div>
+      <button class="burger-btn" onclick="toggleSidebar()">☰</button>
+    </div>
+  </header>
+
+  <div class="balance-bar">
+    <span>Игровые фишки:</span>
+    <span class="balance-val" id="userBalance">100.00 TJS</span>
+  </div>
+
+  <div class="game-arena">
+    <div class="road">
+      <div class="lane" id="lane-5">
+        <span class="lane-num">Финиш 🏁</span>
+        <span class="lane-actor">🐔</span>
+        <span class="lane-mult">x4.50</span>
+      </div>
+      <div class="lane" id="lane-4">
+        <span class="lane-num">Полоса 4</span>
+        <span class="lane-actor">🐔</span>
+        <span class="lane-mult">x2.80</span>
+      </div>
+      <div class="lane" id="lane-3">
+        <span class="lane-num">Полоса 3</span>
+        <span class="lane-actor">🐔</span>
+        <span class="lane-mult">x1.90</span>
+      </div>
+      <div class="lane" id="lane-2">
+        <span class="lane-num">Полоса 2</span>
+        <span class="lane-actor">🐔</span>
+        <span class="lane-mult">x1.45</span>
+      </div>
+      <div class="lane" id="lane-1">
+        <span class="lane-num">Полоса 1</span>
+        <span class="lane-actor">🐔</span>
+        <span class="lane-mult">x1.20</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div style="font-size: 12px; color: #94a3b8; font-weight: 700;">ВЫБЕРИ СТАВКУ ФИШЕК:</div>
+      <div class="bet-selector">
+        <button class="bet-btn active" onclick="setBet(5, this)">5</button>
+        <button class="bet-btn" onclick="setBet(10, this)">10</button>
+        <button class="bet-btn" onclick="setBet(25, this)">25</button>
+        <button class="bet-btn" onclick="setBet(50, this)">50</button>
+      </div>
+
+      <div class="action-group">
+        <button class="btn-main" id="mainBtn" onclick="handleGameAction()">СТАРТ (5 TJS) 🚀</button>
+        <button class="btn-cashout" id="cashoutBtn" onclick="cashOut()">ЗАБРАТЬ 💰</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка с бесплатными фишками для друзей -->
+  <div class="modal-backdrop" id="bonusModal">
+    <div class="modal">
+      <h3>🎁 Бонусные фишки</h3>
+      <p style="font-size: 14px; color: #94a3b8; margin: 10px 0;">Закончились фишки для игры с друзьями? Нажми кнопку, чтобы пополнить баланс на +100 фишек!</p>
+      <button class="modal-btn" onclick="claimFreeBonus()">Забрать +100 TJS 🪙</button>
+      <button class="modal-close" onclick="closeModal('bonusModal')">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Меню -->
+  <div class="modal-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <h3 style="margin-bottom: 20px; font-size: 18px;">👑 Chicken Party</h3>
+    <div class="nav-item">🎮 Режим: Игра с друзьями</div>
+    <div class="nav-item" onclick="resetScore()">🔄 Сбросить баланс до 100</div>
+    <div class="nav-item" onclick="toggleSidebar()">✖ Закрыть меню</div>
+  </aside>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    // Звуки через встроенный синтезатор звука браузера
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq, type, duration) {
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.stop(ctx.currentTime + duration);
+      } catch(e){}
+    }
+
+    // Сохранение баланса между сессиями
+    let balance = parseFloat(localStorage.getItem('chicken_balance')) || 100.0;
+    let bet = 5.0;
+    let currentLane = 0;
+    let gameActive = false;
+    const multipliers = [1.20, 1.45, 1.90, 2.80, 4.50];
+
+    updateBalance();
+
+    function setBet(amount, btn) {
+      if (gameActive) return;
+      bet = amount;
+      document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('mainBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
+      playBeep(400, 'sine', 0.1);
+    }
+
+    function handleGameAction() {
+      if (!gameActive) {
+        if (balance < bet) {
+          openModal('bonusModal');
+          return;
+        }
+        balance -= bet;
+        updateBalance();
+        resetBoard();
+        gameActive = true;
+        currentLane = 1;
+        stepForward();
+      } else {
+        currentLane++;
+        stepForward();
+      }
+    }
+
+    function stepForward() {
+      // 22% шанс неудачи на полосе
+      const isCrash = currentLane > 1 && Math.random() < 0.22;
+      const laneEl = document.getElementById(`lane-${currentLane}`);
+
+      if (isCrash) {
+        laneEl.classList.add('crashed');
+        laneEl.querySelector('.lane-actor').innerText = '💥';
+        document.getElementById('mainBtn').innerText = 'РАЗДАВИЛИ! ЗАНОВО 🔄';
+        document.getElementById('cashoutBtn').style.display = 'none';
+        gameActive = false;
+        playBeep(120, 'sawtooth', 0.4); // звук удара
+      } else {
+        document.querySelectorAll('.lane').forEach(l => l.classList.remove('current'));
+        laneEl.classList.add('passed', 'current');
+        
+        const currentWin = (bet * multipliers[currentLane - 1]).toFixed(2);
+        const cashoutBtn = document.getElementById('cashoutBtn');
+        cashoutBtn.style.display = 'block';
+        cashoutBtn.innerText = `ЗАБРАТЬ (${currentWin}) 💰`;
+
+        playBeep(300 + currentLane * 100, 'triangle', 0.15); // звук успешного шага
+
+        if (currentLane === 5) {
+          document.getElementById('mainBtn').innerText = 'ФИНИШ! ЗАБЕРИ ВЫИГРЫШ 🏆';
+          gameActive = false;
+        } else {
+          document.getElementById('mainBtn').innerText = 'СЛЕДУЮЩАЯ ПОЛОСА ➡️';
+        }
+      }
+    }
+
+    function cashOut() {
+      if (currentLane === 0) return;
+      const win = bet * multipliers[currentLane - 1];
+      balance += win;
+      updateBalance();
+      playBeep(700, 'sine', 0.3); // победный звук
+      alert(`🎉 Красавчик! Ты забрал ${win.toFixed(2)} фишек!`);
+      resetBoard();
+    }
+
+    function resetBoard() {
+      gameActive = false;
+      currentLane = 0;
+      document.getElementById('cashoutBtn').style.display = 'none';
+      document.getElementById('mainBtn').innerText = `СТАРТ (${bet} TJS) 🚀`;
+      for (let i = 1; i <= 5; i++) {
+        const lane = document.getElementById(`lane-${i}`);
+        lane.className = 'lane';
+        lane.querySelector('.lane-actor').innerText = '🐔';
+      }
+    }
+
+    function updateBalance() {
+      localStorage.setItem('chicken_balance', balance);
+      document.getElementById('userBalance').innerText = `${balance.toFixed(2)} TJS`;
+    }
+
+    function claimFreeBonus() {
+      balance += 100.0;
+      updateBalance();
+      playBeep(600, 'sine', 0.2);
+      closeModal('bonusModal');
+      alert('Вам начислено +100 фишек! Приятной игры!');
+    }
+
+    function resetScore() {
+      balance = 100.0;
+      updateBalance();
+      toggleSidebar();
+      alert('Баланс сброшен на стартовые 100 фишек!');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebarBackdrop');
+      sb.classList.toggle('open');
+      bd.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
