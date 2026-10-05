@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chicken Road</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Верхняя панель */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #1e293b;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      font-size: 15px;
+      font-weight: 800;
+      color: #facc15;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-deposit {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-withdraw {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .country-tag {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: #334155;
+      padding: 5px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .burger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+
+    /* Боковое меню */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      z-index: 90;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -280px;
+      width: 260px;
+      height: 100%;
+      background: #1e293b;
+      transition: right 0.3s ease;
+      z-index: 100;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 16px rgba(0,0,0,0.5);
+    }
+
+    .sidebar.open {
+      right: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 15px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: #273549;
+    }
+
+    /* Игровая зона */
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+      max-width: 440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .road-board {
+      width: 100%;
+      background: #020617;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .lane {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      border: 1px dashed #475569;
+      border-radius: 8px;
+      height: 48px;
+      padding: 0 16px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .lane.passed {
+      background: #064e3b;
+      border-color: #10b981;
+    }
+
+    .lane.crashed {
+      background: #7f1d1d;
+      border-color: #ef4444;
+    }
+
+    .btn-step {
+      width: 100%;
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #000;
+      border: none;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(234, 179, 8, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>🐔</span> Chicken Road
+    </div>
+
+    <div class="actions">
+      <button class="btn-deposit" onclick="alert('Пополнение счета (TJS)')">Пополнить</button>
+      <button class="btn-withdraw" onclick="alert('Вывод средств (TJS)')">Вывод</button>
+      
+      <div class="country-tag">
+        <span>🇹🇯</span>
+        <span>TJ</span>
+      </div>
+
+      <button class="burger-btn" onclick="toggleMenu()">☰</button>
+    </div>
+  </header>
+
+  <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span>Меню</span>
+      <button class="close-btn" onclick="toggleMenu()">×</button>
+    </div>
+    <div class="nav-item" onclick="openSection('👤 Мой профиль')">👤 Мой профиль</div>
+    <div class="nav-item" onclick="openSection('📖 Инструкция')">📖 Инструкция</div>
+    <div class="nav-item" onclick="openSection('📞 Связь')">📞 Связь</div>
+    <div class="nav-item" onclick="openSection('🛟 Помощь')">🛟 Помощь</div>
+  </aside>
+
+  <div class="game-container">
+    <div style="margin-bottom: 12px; text-align: center;">
+      <h2 style="font-size: 20px;">Переведи курицу через дорогу!</h2>
+      <p style="color: #94a3b8; font-size: 13px;">Каждая полоса умножает выигрыш</p>
+    </div>
+
+    <div class="road-board" id="road">
+      <div class="lane" id="lane-5"><span>Полоса 5</span> <span>x4.50 🏁</span></div>
+      <div class="lane" id="lane-4"><span>Полоса 4</span> <span>x2.80</span></div>
+      <div class="lane" id="lane-3"><span>Полоса 3</span> <span>x1.90</span></div>
+      <div class="lane" id="lane-2"><span>Полоса 2</span> <span>x1.45</span></div>
+      <div class="lane" id="lane-1"><span>Полоса 1</span> <span>x1.20</span></div>
+    </div>
+
+    <button class="btn-step" id="step-btn" onclick="nextStep()">Сделать шаг 🐔</button>
+  </div>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      const isOpen = sidebar.classList.contains('open');
+
+      if (isOpen) {
+        sidebar.classList.remove('open');
+        overlay.style.display = 'none';
+      } else {
+        sidebar.classList.add('open');
+        overlay.style.display = 'block';
+      }
+    }
+
+    function openSection(title) {
+      toggleMenu();
+      alert('Раздел: ' + title);
+    }
+
+    let currentLane = 0;
+    const totalLanes = 5;
+
+    function nextStep() {
+      if (currentLane >= totalLanes) {
+        resetGame();
+        return;
+      }
+
+      currentLane++;
+      const laneEl = document.getElementById('lane-' + currentLane);
+      const isCrash = currentLane > 1 && Math.random() < 0.25;
+
+      if (isCrash) {
+        laneEl.classList.add('crashed');
+        laneEl.innerHTML += ' 💥';
+        document.getElementById('step-btn').innerText = 'Раздавили! Заново 🔄';
+        currentLane = totalLanes;
+      } else {
+        laneEl.classList.add('passed');
+        laneEl.innerHTML += ' 🐔';
+        
+        if (currentLane === totalLanes) {
+          document.getElementById('step-btn').innerText = 'Победа! Забрать выигрыш 🏆';
+        } else {
+          document.getElementById('step-btn').innerText = 'Следующая полоса ➡️';
+        }
+      }
+    }
+
+    function resetGame() {
+      currentLane = 0;
+      const multipliers = ['x1.20', 'x1.45', 'x1.90', 'x2.80', 'x4.50 🏁'];
+      for (let i = 1; i <= totalLanes; i++) {
+        const lane = document.getElementById('lane-' + i);
+        lane.className = 'lane';
+        lane.innerHTML = `<span>Полоса ${i}</span> <span>${multipliers[i-1]}</span>`;
+      }
+      document.getElementById('step-btn').innerText = 'Сделать шаг 🐔';
+    }
+  </script>
+</body>
+</html>
